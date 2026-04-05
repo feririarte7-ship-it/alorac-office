@@ -351,6 +351,72 @@ body{
 </head>
 <body>
 
+<!-- DASHBOARD MODAL -->
+<div id="dashModal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);overflow-y:auto;">
+  <div style="max-width:860px;margin:40px auto;padding:0 20px 60px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+      <div>
+        <div style="font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Vista general</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.08em;">PANEL OPERATIVO</div>
+      </div>
+      <button onclick="document.getElementById('dashModal').style.display='none'" style="background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;cursor:pointer;font-size:12px;letter-spacing:.1em;text-transform:uppercase;">Cerrar</button>
+    </div>
+
+    <!-- ALERTAS -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:2px;">
+      <div style="background:rgba(224,82,82,.12);border:1px solid rgba(224,82,82,.3);padding:20px 24px;">
+        <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:6px;">Vencen en 30 días</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--red);line-height:1;">1</div>
+        <div style="font-size:12px;color:rgba(240,237,230,.5);margin-top:4px;">FC Barcelona · 31/03/2026</div>
+      </div>
+      <div style="background:rgba(232,184,75,.08);border:1px solid rgba(232,184,75,.25);padding:20px 24px;">
+        <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;">En negociación</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--yellow);line-height:1;">1</div>
+        <div style="font-size:12px;color:rgba(240,237,230,.5);margin-top:4px;">IBZ-004 · Wallis 9</div>
+      </div>
+      <div style="background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.25);padding:20px 24px;">
+        <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:6px;">Disponibles</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--green);line-height:1;">2</div>
+        <div style="font-size:12px;color:rgba(240,237,230,.5);margin-top:4px;">MAL-001 · IBZ-005</div>
+      </div>
+    </div>
+
+    <!-- VENCIMIENTOS -->
+    <div style="background:var(--card);border:1px solid var(--border);margin-top:16px;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);">Próximos vencimientos</div>
+      <div id="vencList" style="padding:8px 0;"></div>
+    </div>
+
+    <!-- AGENDA -->
+    <div style="background:var(--card);border:1px solid var(--border);margin-top:16px;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);">Agenda de negociaciones</div>
+        <button onclick="addReunion()" style="background:rgba(200,169,110,.1);border:1px solid var(--border);color:var(--gold);padding:6px 14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">+ Agregar</button>
+      </div>
+      <div id="agendaList" style="padding:8px 0;"></div>
+    </div>
+
+    <!-- INGRESOS -->
+    <div style="background:var(--card);border:1px solid var(--border);margin-top:16px;padding:20px 24px;">
+      <div style="font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Resumen financiero</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Ingresos mensuales</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);">29.500€</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Contratos activos</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);">3</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Fianzas retenidas</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);">88.500€</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-logo">
@@ -359,6 +425,7 @@ body{
     <div class="topbar-badge">Beta</div>
   </div>
   <div class="topbar-right">
+    <button onclick="document.getElementById('dashModal').style.display='block';renderDash()" style="background:rgba(200,169,110,.1);border:1px solid var(--border);color:var(--gold);padding:7px 16px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">📊 Panel operativo</button>
     <div class="dot-live"></div>
     <div class="topbar-user">Bienvenida, <strong>Carola</strong></div>
   </div>
@@ -834,6 +901,75 @@ function toggleVoice() {
   };
 
   recognition.start();
+}
+
+// ── DASHBOARD ──
+const reuniones = [
+  { fecha: '08/04/2026', local: 'FC Barcelona — IBZ-002', asunto: 'Negociación renovación contrato', estado: 'urgente' },
+  { fecha: '15/04/2026', local: 'IBZ-004 — Wallis 9', asunto: 'Reunión con candidato cosmética francesa', estado: 'pendiente' },
+  { fecha: '22/04/2026', local: 'MAL-001 — Born 18', asunto: 'Visita con marca de gastronomía', estado: 'pendiente' },
+];
+
+function renderDash() {
+  // Vencimientos
+  const vList = document.getElementById('vencList');
+  const sorted = locales.filter(l => l.contrato).map(l => {
+    const fin = new Date(l.contrato.fin.split('/').reverse().join('-'));
+    const dias = Math.round((fin - new Date()) / (1000*60*60*24));
+    return { ...l, dias };
+  }).sort((a,b) => a.dias - b.dias);
+
+  vList.innerHTML = sorted.map(l => {
+    const color = l.dias < 0 ? 'var(--red)' : l.dias < 60 ? 'var(--red)' : l.dias < 180 ? 'var(--yellow)' : 'var(--green)';
+    const label = l.dias < 0 ? '🔴 VENCIDO' : l.dias < 60 ? '🔴 URGENTE' : l.dias < 180 ? '🟡 EN RADAR' : '🟢 Vigente';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04);">
+      <div>
+        <div style="font-size:13px;font-weight:400;">${l.inquilino}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${l.ref} · ${l.contrato.renta}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:13px;color:${color};">${l.contrato.fin}</div>
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:${color};margin-top:2px;">${label} · ${Math.abs(l.dias)} días</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Agenda
+  renderAgenda();
+}
+
+function renderAgenda() {
+  const aList = document.getElementById('agendaList');
+  if (!reuniones.length) {
+    aList.innerHTML = '<div style="padding:20px;font-size:13px;color:var(--muted);text-align:center;">Sin reuniones programadas</div>';
+    return;
+  }
+  aList.innerHTML = reuniones.map((r,i) => {
+    const color = r.estado === 'urgente' ? 'var(--red)' : 'var(--yellow)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04);">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="background:rgba(200,169,110,.1);border:1px solid var(--border);padding:8px 12px;text-align:center;min-width:52px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);line-height:1;">${r.fecha.split('/')[0]}</div>
+          <div style="font-size:10px;color:var(--muted);">ABR</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:400;">${r.local}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">${r.asunto}</div>
+        </div>
+      </div>
+      <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:${color};">${r.estado}</div>
+    </div>`;
+  }).join('');
+}
+
+function addReunion() {
+  const fecha = prompt('Fecha (DD/MM/AAAA):');
+  const local = prompt('Local / cliente:');
+  const asunto = prompt('Asunto:');
+  if (fecha && local && asunto) {
+    reuniones.push({ fecha, local, asunto, estado: 'pendiente' });
+    renderAgenda();
+  }
 }
 
 // ── INIT ──
