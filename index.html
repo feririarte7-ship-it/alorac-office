@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alorac Office</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D0D0B;
+  --panel: #161614;
+  --card: #1E1E1A;
+  --border: rgba(200,169,110,0.15);
+  --gold: #C8A96E;
+  --gold2: #E2C98A;
+  --white: #F0EDE6;
+  --muted: #6B6860;
+  --green: #4CAF7D;
+  --red: #E05252;
+  --yellow: #E8B84B;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  display:flex;flex-direction:column;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  height:52px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  flex-shrink:0;
+}
+.topbar-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:.12em;color:var(--white);
+  display:flex;align-items:center;gap:10px;
+}
+.topbar-logo span{color:var(--gold);}
+.topbar-logo img{height:22px;filter:brightness(0) invert(1);opacity:.8;}
+.topbar-badge{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  background:rgba(200,169,110,.12);color:var(--gold);
+  padding:3px 10px;border:1px solid var(--border);
+}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.topbar-user{font-size:12px;color:var(--muted);}
+.topbar-user strong{color:var(--white);font-weight:400;}
+.dot-live{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ── LAYOUT ── */
+.app{
+  display:flex;flex:1;overflow:hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+.sidebar-search{
+  padding:16px;border-bottom:1px solid var(--border);
+}
+.search-input{
+  width:100%;background:var(--card);
+  border:1px solid var(--border);
+  color:var(--white);padding:9px 12px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;
+  outline:none;transition:border-color .2s;
+}
+.search-input:focus{border-color:var(--gold);}
+.search-input::placeholder{color:var(--muted);}
+
+.sidebar-filters{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.filter-btn{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 10px;border:1px solid var(--border);
+  background:none;color:var(--muted);cursor:pointer;
+  transition:all .2s;
+}
+.filter-btn.active,.filter-btn:hover{
+  border-color:var(--gold);color:var(--gold);background:rgba(200,169,110,.08);
+}
+
+.locales-list{
+  flex:1;overflow-y:auto;padding:8px;
+}
+.locales-list::-webkit-scrollbar{width:4px;}
+.locales-list::-webkit-scrollbar-track{background:transparent;}
+.locales-list::-webkit-scrollbar-thumb{background:var(--border);}
+
+.local-item{
+  padding:14px 12px;cursor:pointer;
+  border:1px solid transparent;
+  margin-bottom:4px;
+  transition:all .2s;
+}
+.local-item:hover{background:var(--card);border-color:var(--border);}
+.local-item.active{background:rgba(200,169,110,.08);border-color:var(--gold);}
+
+.local-item-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;}
+.local-ref{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;
+}
+.status-dot.disponible{background:var(--green);}
+.status-dot.alquilado{background:var(--red);}
+.status-dot.negociacion{background:var(--yellow);}
+
+.local-name{font-size:13px;font-weight:400;color:var(--white);margin-bottom:3px;}
+.local-meta{font-size:11px;color:var(--muted);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── FICHA ── */
+.ficha{
+  flex:1;overflow-y:auto;padding:28px;
+}
+.ficha::-webkit-scrollbar{width:4px;}
+.ficha::-webkit-scrollbar-thumb{background:var(--border);}
+
+.ficha-empty{
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;
+  color:var(--muted);
+}
+.ficha-empty .big{
+  font-family:'Bebas Neue',sans-serif;font-size:48px;
+  color:rgba(200,169,110,.15);letter-spacing:.1em;
+}
+
+.ficha-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:28px;padding-bottom:20px;
+  border-bottom:1px solid var(--border);
+}
+.ficha-ref{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.ficha-nombre{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:.05em;line-height:1;}
+.ficha-dir{font-size:13px;color:var(--muted);margin-top:6px;}
+
+.status-badge{
+  padding:6px 16px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:500;
+}
+.status-badge.disponible{background:rgba(76,175,125,.15);color:var(--green);border:1px solid rgba(76,175,125,.3);}
+.status-badge.alquilado{background:rgba(224,82,82,.15);color:var(--red);border:1px solid rgba(224,82,82,.3);}
+.status-badge.negociacion{background:rgba(232,184,75,.15);color:var(--yellow);border:1px solid rgba(232,184,75,.3);}
+
+.ficha-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+  margin-bottom:20px;
+}
+.ficha-stat{
+  background:var(--card);padding:18px 20px;
+}
+.ficha-stat .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.ficha-stat .value{font-size:18px;font-weight:400;color:var(--white);}
+.ficha-stat .value.gold{color:var(--gold);}
+
+.ficha-section{margin-bottom:20px;}
+.ficha-section-title{
+  font-size:10px;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+
+.ficha-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:13px;
+}
+.ficha-row .key{color:var(--muted);}
+.ficha-row .val{color:var(--white);font-weight:400;text-align:right;}
+.ficha-row .val.alert{color:var(--yellow);}
+.ficha-row .val.ok{color:var(--green);}
+
+.contrato-block{
+  background:var(--card);border:1px solid var(--border);
+  padding:20px;
+}
+.contrato-block .ct-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;
+}
+.contrato-block .ct-title{font-size:14px;font-weight:500;}
+.ct-pdf-btn{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  background:rgba(200,169,110,.1);color:var(--gold);
+  border:1px solid var(--border);padding:6px 14px;
+  cursor:pointer;transition:all .2s;
+}
+.ct-pdf-btn:hover{background:rgba(200,169,110,.2);}
+
+.propietario-card{
+  background:var(--card);border:1px solid var(--border);padding:16px 20px;
+  display:flex;align-items:center;gap:16px;
+}
+.prop-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(200,169,110,.2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);
+  flex-shrink:0;
+}
+.prop-name{font-size:14px;font-weight:400;}
+.prop-contact{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* ── CHAT PANEL ── */
+.chat-panel{
+  width:340px;flex-shrink:0;
+  background:var(--panel);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+
+.chat-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.chat-title{
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.12em;color:var(--white);
+}
+.chat-subtitle{font-size:11px;color:var(--muted);margin-top:1px;}
+.voice-indicator{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--muted);
+}
+.voice-bars{display:flex;gap:2px;align-items:flex-end;height:16px;}
+.vbar{
+  width:3px;background:var(--gold);border-radius:2px;
+  animation:vbar .8s ease infinite alternate;
+}
+.vbar:nth-child(1){height:6px;animation-delay:0s;}
+.vbar:nth-child(2){height:12px;animation-delay:.15s;}
+.vbar:nth-child(3){height:8px;animation-delay:.3s;}
+.vbar:nth-child(4){height:14px;animation-delay:.1s;}
+.vbar:nth-child(5){height:6px;animation-delay:.25s;}
+@keyframes vbar{to{height:4px;}}
+.voice-bars.idle .vbar{animation:none;height:4px;background:var(--muted);}
+
+.chat-messages{
+  flex:1;overflow-y:auto;padding:16px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);}
+
+.msg{max-width:90%;padding:10px 14px;font-size:13px;line-height:1.6;}
+.msg.bot{
+  background:rgba(200,169,110,.08);
+  border-left:2px solid var(--gold);
+  align-self:flex-start;color:var(--white);
+}
+.msg.user{
+  background:rgba(240,237,230,.08);
+  align-self:flex-end;color:var(--white);text-align:right;
+}
+.msg.system{
+  align-self:center;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);background:none;padding:4px 0;
+}
+
+.typing{
+  align-self:flex-start;
+  background:rgba(200,169,110,.08);border-left:2px solid var(--gold);
+  padding:10px 14px;display:flex;gap:4px;align-items:center;
+}
+.typing span{
+  width:6px;height:6px;border-radius:50%;background:var(--gold);
+  animation:bounce .9s ease infinite;
+}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+.chat-footer{
+  padding:14px 16px;border-top:1px solid var(--border);
+}
+.chat-input-row{
+  display:flex;gap:8px;margin-bottom:10px;
+}
+.chat-in{
+  flex:1;background:var(--card);border:1px solid var(--border);
+  color:var(--white);padding:10px 12px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;
+  outline:none;transition:border-color .2s;
+}
+.chat-in:focus{border-color:var(--gold);}
+.chat-in::placeholder{color:var(--muted);}
+.chat-send{
+  background:var(--gold);border:none;color:var(--bg);
+  padding:10px 14px;cursor:pointer;font-size:15px;
+  transition:background .2s;
+}
+.chat-send:hover{background:var(--gold2);}
+
+.voice-btn{
+  width:100%;background:var(--card);border:1px solid var(--border);
+  color:var(--muted);padding:10px;
+  font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.voice-btn:hover{border-color:var(--gold);color:var(--gold);}
+.voice-btn.listening{
+  border-color:var(--red);color:var(--red);
+  background:rgba(224,82,82,.08);
+  animation:listening-pulse 1.5s ease infinite;
+}
+@keyframes listening-pulse{0%,100%{box-shadow:0 0 0 0 rgba(224,82,82,.3);}50%{box-shadow:0 0 0 6px rgba(224,82,82,0);}}
+
+.suggested{
+  display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px;
+}
+.sug{
+  font-size:11px;padding:5px 10px;
+  background:rgba(200,169,110,.06);border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.sug:hover{border-color:var(--gold);color:var(--gold);}
+
+/* RESPONSIVE MOBILE */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .chat-panel{width:100%;}
+  .ficha{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <img src="https://images.squarespace-cdn.com/content/v1/56e6fabeb6aa60b929de0edd/1459196477392-L34WDY2PO7E3ANQID4Y2/LOGO+ALORAC+WEB-01.png" alt="Alorac">
+    <span>OFFICE</span>
+    <div class="topbar-badge">Beta</div>
+  </div>
+  <div class="topbar-right">
+    <div class="dot-live"></div>
+    <div class="topbar-user">Bienvenida, <strong>Carola</strong></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-search">
+      <input class="search-input" type="text" placeholder="Buscar local, calle, cliente..." oninput="filterLocales(this.value)">
+    </div>
+    <div class="sidebar-filters">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('disponible',this)">Disponibles</button>
+      <button class="filter-btn" onclick="setFilter('alquilado',this)">Alquilados</button>
+      <button class="filter-btn" onclick="setFilter('negociacion',this)">En negociación</button>
+    </div>
+    <div class="locales-list" id="localesList"></div>
+  </div>
+
+  <!-- MAIN FICHA -->
+  <div class="main">
+    <div class="ficha" id="fichaPanel">
+      <div class="ficha-empty">
+        <div class="big">ALORAC</div>
+        <div style="font-size:13px">Seleccioná un local para ver su ficha</div>
+        <div style="font-size:12px;color:var(--muted)">o preguntale al asistente →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div>
+        <div class="chat-title">ASISTENTE IA</div>
+        <div class="chat-subtitle">Preguntá sobre locales, contratos, propietarios</div>
+      </div>
+      <div class="voice-indicator">
+        <div class="voice-bars idle" id="voiceBars">
+          <div class="vbar"></div><div class="vbar"></div><div class="vbar"></div>
+          <div class="vbar"></div><div class="vbar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="suggested" id="suggested">
+      <div class="sug" onclick="askSuggested(this)">¿Qué locales están disponibles?</div>
+      <div class="sug" onclick="askSuggested(this)">¿Cuándo vence el contrato de Benetton?</div>
+      <div class="sug" onclick="askSuggested(this)">¿Cuánto paga Bershka?</div>
+      <div class="sug" onclick="askSuggested(this)">Mostrame locales en Ibiza centro</div>
+    </div>
+
+    <div class="chat-messages" id="chatMsgs">
+      <div class="msg bot">Hola Carola. Tengo acceso a todas tus fichas y contratos. Preguntame lo que necesitás — por escrito o por voz.</div>
+    </div>
+
+    <div class="chat-footer">
+      <div class="chat-input-row">
+        <input class="chat-in" id="chatIn" type="text" placeholder="Preguntá algo..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="chat-send" onclick="sendMsg()">→</button>
+      </div>
+      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+        <span>🎙</span> Mantené para hablar
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATOS DE LOCALES ──
+const locales = [
+  {
+    id: 1,
+    ref: "IBZ-001",
+    nombre: "Local Bartomeu Roselló 12",
+    direccion: "Av. de Bartomeu Roselló, 12 · Ibiza",
+    zona: "Ibiza centro",
+    status: "alquilado",
+    m2: "320",
+    planta: "Baja + Primera",
+    fachada: "10.5 m",
+    inquilino: "MAC Cosmetics",
+    propietario: { nombre: "Familia Marí Torres", tel: "+34 616 234 567", email: "jmari@email.com", iniciales: "MT" },
+    contrato: {
+      inicio: "01/03/2022",
+      fin: "28/02/2027",
+      renta: "8.200€ / mes",
+      fianza: "24.600€",
+      firmado_por: "Helena Vidal (MAC Spain)",
+      clausulas: "IPC anual · Subrogación prohibida · Opción de prórroga 2 años"
+    },
+    notas: "Local en excelente estado. Reforma completa en 2022. Acceso por dos calles."
+  },
+  {
+    id: 2,
+    ref: "IBZ-002",
+    nombre: "Local Juan de Austria esq. Ramón y Cajal",
+    direccion: "C/ Juan de Austria, 2 esq. C/ Ramón y Cajal · Ibiza",
+    zona: "Ibiza centro",
+    status: "alquilado",
+    m2: "280",
+    planta: "Baja",
+    fachada: "14 m (esquina)",
+    inquilino: "FC Barcelona Official Store",
+    propietario: { nombre: "Inversiones Bonet S.L.", tel: "+34 971 312 456", email: "admin@bonetsl.com", iniciales: "IB" },
+    contrato: {
+      inicio: "01/04/2016",
+      fin: "31/03/2026",
+      renta: "9.500€ / mes",
+      fianza: "28.500€",
+      firmado_por: "Dept. Expansión FCB",
+      clausulas: "IPC anual · Renovación negociada · Exclusividad zona"
+    },
+    notas: "⚠️ Contrato vence en marzo 2026 — iniciar negociación de renovación."
+  },
+  {
+    id: 3,
+    ref: "IBZ-003",
+    nombre: "Local Bartomeu Roselló 28",
+    direccion: "Av. Bartomeu Roselló, 28 · Ibiza",
+    zona: "Ibiza centro",
+    status: "alquilado",
+    m2: "400",
+    planta: "Baja",
+    fachada: "12 m",
+    inquilino: "Bershka",
+    propietario: { nombre: "Cristina Tur Escandell", tel: "+34 629 871 234", email: "ctur@gmail.com", iniciales: "CT" },
+    contrato: {
+      inicio: "15/06/2019",
+      fin: "14/06/2029",
+      renta: "11.800€ / mes",
+      fianza: "35.400€",
+      firmado_por: "Inditex Real Estate",
+      clausulas: "IPC anual · Opción compra 2031 · Mantenimiento a cargo inquilino"
+    },
+    notas: "Local diáfano de gran superficie. Mejor posición comercial de la calle."
+  },
+  {
+    id: 4,
+    ref: "IBZ-004",
+    nombre: "Local Ignasi Wallis 9",
+    direccion: "Av. d'Ignasi Wallis, 9 · Ibiza",
+    zona: "Ibiza norte",
+    status: "negociacion",
+    m2: "185",
+    planta: "Baja",
+    fachada: "7.5 m",
+    inquilino: "En negociación",
+    propietario: { nombre: "Pep Ramis Ferrer", tel: "+34 636 450 123", email: "pramis@icloud.com", iniciales: "PR" },
+    contrato: null,
+    notas: "Tres candidatos interesados. Reunión pendiente con marca de cosmética francesa."
+  },
+  {
+    id: 5,
+    ref: "MAL-001",
+    nombre: "Local Passeig del Born 18",
+    direccion: "Passeig del Born, 18 · Palma de Mallorca",
+    zona: "Palma centro",
+    status: "disponible",
+    m2: "240",
+    planta: "Baja + Semisótano",
+    fachada: "8 m",
+    inquilino: null,
+    propietario: { nombre: "Grupo Immobiliari Balear", tel: "+34 971 567 890", email: "info@gib.es", iniciales: "GI" },
+    contrato: null,
+    notas: "Disponible desde febrero 2026. Renta de mercado: 7.500-8.500€/mes. Ideal para moda o gastronomía premium."
+  },
+  {
+    id: 6,
+    ref: "IBZ-005",
+    nombre: "Local Ramón y Cajal 5",
+    direccion: "C/ Ramón y Cajal, 5 · Ibiza",
+    zona: "Ibiza centro",
+    status: "disponible",
+    m2: "120",
+    planta: "Baja",
+    fachada: "6 m",
+    inquilino: null,
+    propietario: { nombre: "Antònia Serra Ribas", tel: "+34 618 234 789", email: "aserra@correo.es", iniciales: "AS" },
+    contrato: null,
+    notas: "Local recién reformado. Ideal para pop-up o marca pequeña. Alta visibilidad."
+  }
+];
+
+let activeFilter = 'todos';
+let activeLocal = null;
+
+// ── RENDER LISTA ──
+function renderList(data) {
+  const list = document.getElementById('localesList');
+  list.innerHTML = '';
+  data.forEach(l => {
+    const el = document.createElement('div');
+    el.className = 'local-item' + (activeLocal && activeLocal.id === l.id ? ' active' : '');
+    el.onclick = () => selectLocal(l);
+    el.innerHTML = `
+      <div class="local-item-header">
+        <div class="local-ref">${l.ref}</div>
+        <div class="status-dot ${l.status}"></div>
+      </div>
+      <div class="local-name">${l.nombre}</div>
+      <div class="local-meta">${l.m2} m² · ${l.zona}</div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function filterLocales(q) {
+  const filtered = locales.filter(l =>
+    getFilteredLocales().some(x => x.id === l.id) &&
+    (l.nombre.toLowerCase().includes(q.toLowerCase()) ||
+     l.direccion.toLowerCase().includes(q.toLowerCase()) ||
+     (l.inquilino && l.inquilino.toLowerCase().includes(q.toLowerCase())))
+  );
+  renderList(filtered);
+}
+
+function getFilteredLocales() {
+  if (activeFilter === 'todos') return locales;
+  return locales.filter(l => l.status === activeFilter);
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList(getFilteredLocales());
+}
+
+// ── FICHA ──
+function selectLocal(l) {
+  activeLocal = l;
+  renderList(getFilteredLocales());
+
+  const statusLabels = {disponible:'Disponible',alquilado:'Alquilado',negociacion:'En negociación'};
+
+  let contratoHTML = '';
+  if (l.contrato) {
+    // Calcular días restantes
+    const fin = new Date(l.contrato.fin.split('/').reverse().join('-'));
+    const hoy = new Date();
+    const dias = Math.round((fin - hoy) / (1000*60*60*24));
+    const alertClass = dias < 180 ? 'alert' : 'ok';
+    const diasTexto = dias < 0 ? `Vencido hace ${Math.abs(dias)} días` : `Vence en ${dias} días`;
+
+    contratoHTML = `
+      <div class="ficha-section">
+        <div class="ficha-section-title">Contrato activo</div>
+        <div class="contrato-block">
+          <div class="ct-header">
+            <div class="ct-title">${l.inquilino}</div>
+            <button class="ct-pdf-btn">📄 Ver PDF</button>
+          </div>
+          <div class="ficha-row"><span class="key">Inicio</span><span class="val">${l.contrato.inicio}</span></div>
+          <div class="ficha-row"><span class="key">Vencimiento</span><span class="val ${alertClass}">${l.contrato.fin} — ${diasTexto}</span></div>
+          <div class="ficha-row"><span class="key">Renta mensual</span><span class="val gold">${l.contrato.renta}</span></div>
+          <div class="ficha-row"><span class="key">Fianza</span><span class="val">${l.contrato.fianza}</span></div>
+          <div class="ficha-row"><span class="key">Firmado por</span><span class="val">${l.contrato.firmado_por}</span></div>
+          <div class="ficha-row"><span class="key">Cláusulas</span><span class="val" style="font-size:11px;max-width:55%;text-align:right">${l.contrato.clausulas}</span></div>
+        </div>
+      </div>
+    `;
+  } else if (l.status === 'disponible') {
+    contratoHTML = `
+      <div class="ficha-section">
+        <div class="ficha-section-title">Estado</div>
+        <div style="background:var(--card);border:1px solid var(--border);padding:20px;color:var(--green);font-size:13px;">
+          ✓ Local disponible — sin contrato activo
+        </div>
+      </div>
+    `;
+  } else {
+    contratoHTML = `
+      <div class="ficha-section">
+        <div class="ficha-section-title">Estado</div>
+        <div style="background:var(--card);border:1px solid var(--border);padding:20px;color:var(--yellow);font-size:13px;">
+          ⏳ En negociación — contrato pendiente de firmar
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('fichaPanel').innerHTML = `
+    <div class="ficha-header">
+      <div>
+        <div class="ficha-ref">${l.ref}</div>
+        <div class="ficha-nombre">${l.nombre}</div>
+        <div class="ficha-dir">${l.direccion}</div>
+      </div>
+      <div class="status-badge ${l.status}">${statusLabels[l.status]}</div>
+    </div>
+
+    <div class="ficha-grid">
+      <div class="ficha-stat">
+        <div class="label">Superficie</div>
+        <div class="value">${l.m2} m²</div>
+      </div>
+      <div class="ficha-stat">
+        <div class="label">Planta</div>
+        <div class="value">${l.planta}</div>
+      </div>
+      <div class="ficha-stat">
+        <div class="label">Fachada</div>
+        <div class="value">${l.fachada}</div>
+      </div>
+    </div>
+
+    ${contratoHTML}
+
+    <div class="ficha-section">
+      <div class="ficha-section-title">Propietario</div>
+      <div class="propietario-card">
+        <div class="prop-avatar">${l.propietario.iniciales}</div>
+        <div>
+          <div class="prop-name">${l.propietario.nombre}</div>
+          <div class="prop-contact">${l.propietario.tel} · ${l.propietario.email}</div>
+        </div>
+      </div>
+    </div>
+
+    ${l.notas ? `
+    <div class="ficha-section">
+      <div class="ficha-section-title">Notas</div>
+      <div style="background:var(--card);border:1px solid var(--border);padding:16px;font-size:13px;line-height:1.7;color:rgba(240,237,230,.75);">${l.notas}</div>
+    </div>` : ''}
+  `;
+}
+
+// ── CHAT IA ──
+const replies = {
+  disponible: () => {
+    const disp = locales.filter(l => l.status === 'disponible');
+    return `Tenés ${disp.length} locales disponibles:\n${disp.map(l => `• ${l.ref} — ${l.nombre} (${l.m2} m²)`).join('\n')}`;
+  },
+  benetton: () => "Benetton no tiene contrato activo actualmente. El local donde estuvieron es el IBZ-001 (Bartomeu Roselló 12), ahora ocupado por MAC.",
+  mac: () => {
+    const l = locales.find(l => l.id === 1);
+    return `MAC Cosmetics — ${l.ref}\nRenta: ${l.contrato.renta}\nVencimiento: ${l.contrato.fin}\nFirmado por: ${l.contrato.firmado_por}`;
+  },
+  bershka: () => {
+    const l = locales.find(l => l.id === 3);
+    return `Bershka — ${l.ref}\nRenta: ${l.contrato.renta}\nVencimiento: ${l.contrato.fin}\nFachada: ${l.fachada}`;
+  },
+  fcb: () => {
+    const l = locales.find(l => l.id === 2);
+    return `FC Barcelona — ${l.ref}\n⚠️ Contrato vence ${l.contrato.fin} — INICIAR RENOVACIÓN\nRenta actual: ${l.contrato.renta}`;
+  },
+  vencimientos: () => {
+    const alquilados = locales.filter(l => l.contrato);
+    return alquilados.map(l => {
+      const fin = new Date(l.contrato.fin.split('/').reverse().join('-'));
+      const dias = Math.round((fin - new Date()) / (1000*60*60*24));
+      return `• ${l.inquilino}: vence ${l.contrato.fin} (${dias} días)`;
+    }).join('\n');
+  },
+  ibiza: () => {
+    const ibz = locales.filter(l => l.zona.includes('Ibiza'));
+    return `Locales en Ibiza (${ibz.length}):\n${ibz.map(l => `• ${l.ref} — ${l.nombre} [${l.status}]`).join('\n')}`;
+  },
+  mallorca: () => {
+    const mal = locales.filter(l => l.zona.includes('Palma') || l.zona.includes('Mallorca'));
+    return mal.length ? `Locales en Mallorca:\n${mal.map(l => `• ${l.ref} — ${l.nombre} [${l.status}]`).join('\n')}` : "No tenés locales activos en Mallorca ahora mismo.";
+  },
+  renta: () => {
+    const total = locales.filter(l => l.contrato).reduce((s,l) => s + parseInt(l.contrato.renta.replace(/\D/g,'')), 0);
+    return `Ingresos totales por rentas activas: ${total.toLocaleString('es')}€ / mes`;
+  },
+};
+
+function getResponse(q) {
+  q = q.toLowerCase();
+  if (q.includes('disponible') || q.includes('libre')) return replies.disponible();
+  if (q.includes('benetton')) return replies.benetton();
+  if (q.includes('mac')) return replies.mac();
+  if (q.includes('bershka')) return replies.bershka();
+  if (q.includes('barcelona') || q.includes('barça') || q.includes('fcb')) return replies.fcb();
+  if (q.includes('venc') || q.includes('caduc') || q.includes('próxim')) return replies.vencimientos();
+  if (q.includes('ibiza') || q.includes('centro')) return replies.ibiza();
+  if (q.includes('mallorca') || q.includes('palma')) return replies.mallorca();
+  if (q.includes('renta') || q.includes('ingreso') || q.includes('total') || q.includes('cuanto')) return replies.renta();
+  if (q.includes('hola') || q.includes('buenas')) return "Hola Carola. ¿Qué necesitás saber?";
+  return "No encontré esa información exacta. Probá preguntando por un local específico, una marca, o los vencimientos próximos.";
+}
+
+function addMsg(text, type) {
+  const box = document.getElementById('chatMsgs');
+  const el = document.createElement('div');
+  el.className = `msg ${type}`;
+  el.style.whiteSpace = 'pre-line';
+  el.textContent = text;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  return el;
+}
+
+function addTyping() {
+  const box = document.getElementById('chatMsgs');
+  const el = document.createElement('div');
+  el.className = 'typing';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  el.id = 'typing';
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function sendMsg() {
+  const inp = document.getElementById('chatIn');
+  const q = inp.value.trim();
+  if (!q) return;
+  document.getElementById('suggested').style.display = 'none';
+  addMsg(q, 'user');
+  inp.value = '';
+  addTyping();
+  setTimeout(() => {
+    removeTyping();
+    addMsg(getResponse(q), 'bot');
+  }, 900);
+}
+
+function askSuggested(el) {
+  document.getElementById('chatIn').value = el.textContent;
+  sendMsg();
+}
+
+// ── VOZ ──
+let recognition = null;
+let listening = false;
+
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    addMsg("Tu navegador no soporta reconocimiento de voz. Usá Chrome en móvil.", 'system');
+    return;
+  }
+
+  if (listening) {
+    recognition.stop();
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'es-ES';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    listening = true;
+    document.getElementById('voiceBtn').classList.add('listening');
+    document.getElementById('voiceBtn').innerHTML = '<span>🔴</span> Escuchando...';
+    document.getElementById('voiceBars').classList.remove('idle');
+  };
+
+  recognition.onresult = (e) => {
+    const txt = e.results[0][0].transcript;
+    document.getElementById('chatIn').value = txt;
+    sendMsg();
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    document.getElementById('voiceBtn').classList.remove('listening');
+    document.getElementById('voiceBtn').innerHTML = '<span>🎙</span> Mantené para hablar';
+    document.getElementById('voiceBars').classList.add('idle');
+  };
+
+  recognition.start();
+}
+
+// ── INIT ──
+renderList(locales);
+</script>
+</body>
+</html>
